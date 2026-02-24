@@ -249,6 +249,62 @@ select.input-field {
   padding-right: 2rem;
 }
 
+/* ── Input Hint & Sample Button ───────────────────────────── */
+.input-hint {
+  font-size: 0.8125rem;
+  color: var(--text-dim);
+  line-height: 1.5;
+  margin-top: -0.25rem;
+}
+
+.btn-sample {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  border-radius: var(--radius-sm);
+  padding: 0.5rem 0.75rem;
+  font-family: var(--font-body);
+  font-size: 0.8125rem;
+  font-weight: 400;
+  cursor: pointer;
+  transition: var(--transition);
+  width: 100%;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-sample::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.04);
+  transform: translateX(-101%);
+  transition: transform 300ms ease;
+}
+
+.btn-sample:not(:disabled):hover::after {
+  transform: translateX(0);
+}
+
+.btn-sample:not(:disabled):hover {
+  border-color: var(--text-secondary);
+  color: var(--text-primary);
+}
+
+.btn-sample:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.sample-status {
+  font-size: 0.8125rem;
+  min-height: 1.2em;
+}
+
+.sample-status.success { color: var(--success); }
+.sample-status.error   { color: var(--error); }
+
 /* ── Gmail Connect Info ────────────────────────────────────── */
 .connect-info {
   font-size: 0.875rem;

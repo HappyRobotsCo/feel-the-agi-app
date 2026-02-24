@@ -76,7 +76,10 @@
         <p class="card-description">An AI agent intelligently sorts and organizes a folder on your Mac. Fully reversible.</p>
         <div class="card-body">
           <label class="input-label" for="documents-path">Folder to organize</label>
-          <input type="text" id="documents-path" class="input-field" placeholder="~/Documents" value="~/feel-the-agi-test-docs">
+          <input type="text" id="documents-path" class="input-field" placeholder="~/Documents" value="~/Documents">
+          <p class="input-hint">Enter any folder path on your Mac. The agent will sort files into categories and generate an undo script.</p>
+          <button id="use-sample-btn" class="btn-sample" type="button">Or use sample files instead</button>
+          <p class="sample-status" id="sample-status"></p>
           <label class="input-label" for="documents-prompt">What matters most to you? <span class="optional-tag">optional</span></label>
           <textarea id="documents-prompt" class="input-field textarea" placeholder="e.g., Keep my tax documents together, archive anything older than 2023..."></textarea>
         </div>

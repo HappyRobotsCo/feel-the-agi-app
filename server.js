@@ -140,6 +140,26 @@ function handlePostUndoDocuments(req, res) {
   });
 }
 
+function handlePostCreateSampleDocs(req, res) {
+  const sampleDir = path.join(require('os').homedir(), 'feel-the-agi-test-docs');
+  const script = path.join(__dirname, 'create-test-folder.sh');
+
+  if (!fs.existsSync(script)) {
+    jsonResponse(res, 404, { error: 'Sample docs script not found' });
+    return;
+  }
+
+  exec(`bash "${script}"`, (err, stdout, stderr) => {
+    if (err) {
+      console.error(`[sample-docs] error: ${err.message}`);
+      jsonResponse(res, 500, { error: 'Failed to create sample docs', details: stderr || err.message });
+      return;
+    }
+    if (stdout) console.log(`[sample-docs] ${stdout.trimEnd()}`);
+    jsonResponse(res, 200, { status: 'created', path: '~/feel-the-agi-test-docs' });
+  });
+}
+
 function handlePostStop(req, res) {
   // [c]laude trick: regex [c]laude matches "claude" but the literal [c]laude
   // in the process list doesn't match the regex, preventing self-matching.
@@ -192,6 +212,11 @@ const server = http.createServer(async (req, res) => {
 
   if (req.method === 'POST' && req.url === '/undo/documents') {
     handlePostUndoDocuments(req, res);
+    return;
+  }
+
+  if (req.method === 'POST' && req.url === '/create-sample-docs') {
+    handlePostCreateSampleDocs(req, res);
     return;
   }
 

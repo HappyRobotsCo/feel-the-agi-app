@@ -129,6 +129,43 @@
     });
   }
 
+  // ── Card 3: "Use sample files" button ─────────────────────
+  var sampleBtn = document.getElementById('use-sample-btn');
+  var sampleStatus = document.getElementById('sample-status');
+  var documentsPathInput = document.getElementById('documents-path');
+
+  if (sampleBtn) {
+    sampleBtn.addEventListener('click', function () {
+      sampleBtn.disabled = true;
+      sampleBtn.textContent = 'Creating sample files...';
+      sampleStatus.textContent = '';
+      sampleStatus.className = 'sample-status';
+
+      fetch('/create-sample-docs', { method: 'POST' })
+        .then(function (res) { return res.json().then(function (data) { return { ok: res.ok, data: data }; }); })
+        .then(function (result) {
+          if (result.ok) {
+            documentsPathInput.value = result.data.path;
+            localStorage.setItem(STORAGE_KEYS.documentsPath, result.data.path);
+            sampleBtn.textContent = 'Sample files created';
+            sampleStatus.textContent = '46 sample files created in ~/feel-the-agi-test-docs';
+            sampleStatus.className = 'sample-status success';
+          } else {
+            sampleBtn.disabled = false;
+            sampleBtn.textContent = 'Or use sample files instead';
+            sampleStatus.textContent = result.data.error || 'Failed to create sample files.';
+            sampleStatus.className = 'sample-status error';
+          }
+        })
+        .catch(function () {
+          sampleBtn.disabled = false;
+          sampleBtn.textContent = 'Or use sample files instead';
+          sampleStatus.textContent = 'Network error — is the server running?';
+          sampleStatus.className = 'sample-status error';
+        });
+    });
+  }
+
   // ── Card 2: Email (auto-ready — Gmail auth handled by MCP at runtime) ──
   const statusEmail = document.getElementById('status-email');
 
