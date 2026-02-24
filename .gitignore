@@ -1,0 +1,9 @@
+node_modules/
+.DS_Store
+config.json
+.server.pid
+.run-mission*.sh
+status/*.json
+output/
+.venv/
+.credentials/

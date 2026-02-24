@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light">
+  <title>Feel the AGI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="header">
+    <h1 class="header-title">Feel the Future</h1>
+    <p class="header-subtitle">Three AI agents working on your real data, simultaneously. Watch the future of work unfold in real time.</p>
+  </header>
+
+  <!-- Setup State -->
+  <main id="state-setup" class="state active">
+
+    <!-- Mission Cards -->
+    <section class="cards">
+
+      <!-- Card 1: Research & Build -->
+      <div class="card card-green" id="card-website">
+        <div class="card-header">
+          <span class="card-number">01</span>
+          <span class="card-status" id="status-website">
+            <span class="status-dot"></span>
+            <span class="status-text">Pending</span>
+          </span>
+        </div>
+        <h2 class="card-title">Research &amp; Build</h2>
+        <p class="card-description">An AI agent researches your LinkedIn profile and builds you a personal website from scratch.</p>
+        <div class="card-body">
+          <label class="input-label" for="linkedin-url">LinkedIn Profile URL</label>
+          <input type="url" id="linkedin-url" class="input-field" placeholder="https://linkedin.com/in/yourname" value="https://www.linkedin.com/in/matt-alldian">
+          <label class="input-label" for="style-select">Style Preference</label>
+          <select id="style-select" class="input-field">
+            <option value="Minimal">Minimal</option>
+            <option value="Bold">Bold</option>
+            <option value="Corporate">Corporate</option>
+            <option value="Dark">Dark</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Card 2: Email Triage -->
+      <div class="card card-blue" id="card-email">
+        <div class="card-header">
+          <span class="card-number">02</span>
+          <span class="card-status" id="status-email">
+            <span class="status-dot"></span>
+            <span class="status-text">Ready</span>
+          </span>
+        </div>
+        <h2 class="card-title">Email Triage</h2>
+        <p class="card-description">An AI agent reads your recent emails, categorizes them by urgency, and drafts replies for you.</p>
+        <div class="card-body">
+          <p class="connect-info">Gmail is connected via Claude Code's built-in integration. If not connected, visit <strong>claude.ai/settings/connectors</strong>.</p>
+        </div>
+      </div>
+
+      <!-- Card 3: Organize Documents -->
+      <div class="card card-amber" id="card-documents">
+        <div class="card-header">
+          <span class="card-number">03</span>
+          <span class="card-status" id="status-documents">
+            <span class="status-dot"></span>
+            <span class="status-text">Ready</span>
+          </span>
+        </div>
+        <h2 class="card-title">Organize Documents</h2>
+        <p class="card-description">An AI agent intelligently sorts and organizes a folder on your Mac. Fully reversible.</p>
+        <div class="card-body">
+          <label class="input-label" for="documents-path">Folder to organize</label>
+          <input type="text" id="documents-path" class="input-field" placeholder="~/Documents" value="~/feel-the-agi-test-docs">
+          <label class="input-label" for="documents-prompt">What matters most to you? <span class="optional-tag">optional</span></label>
+          <textarea id="documents-prompt" class="input-field textarea" placeholder="e.g., Keep my tax documents together, archive anything older than 2023..."></textarea>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- Terminal Setup Instructions -->
+    <section class="terminal-setup" id="terminal-setup">
+      <h3 class="section-title">Next: Set Up Your Terminal</h3>
+      <p class="section-desc">Open Spotlight (<kbd>Cmd + Space</kbd>) and type <strong>Terminal</strong>, then run:</p>
+      <div class="code-block">
+        <code id="setup-command">curl -sL https://feel-the-agi.dev/setup | bash</code>
+        <button class="btn-copy" id="copy-btn" title="Copy to clipboard">Copy</button>
+      </div>
+    </section>
+
+    <!-- Server Connected Indicator (shown after server detection) -->
+    <p class="server-status" id="server-status">&#10003; Server connected — ready to configure</p>
+
+    <!-- Launch Button -->
+    <section class="launch-section">
+      <button id="launch-btn" class="btn-launch" disabled>
+        Launch All Agents
+      </button>
+    </section>
+
+  </main>
+
+  <!-- Running State -->
+  <main id="state-running" class="state">
+
+    <!-- Running Header -->
+    <div class="running-header">
+      <h2 class="running-title">Agents Active</h2>
+      <button id="stop-btn" class="btn-stop">Stop All</button>
+    </div>
+
+    <!-- Live Preview + Mission Tracker Cards -->
+    <div class="running-layout">
+
+    <!-- Live Preview Panel -->
+    <section class="live-preview" id="live-preview">
+      <div class="preview-placeholder" id="preview-placeholder">
+        <div class="preview-spinner"></div>
+        <p>Waiting for website at localhost:3000...</p>
+      </div>
+      <iframe id="preview-iframe" class="preview-iframe" src="about:blank" sandbox="allow-scripts allow-same-origin"></iframe>
+    </section>
+
+    <!-- Mission Tracker Cards -->
+    <section class="cards running-cards">
+
+      <!-- Mission 1: Research & Build -->
+      <div class="card card-green tracker-card" id="tracker-website">
+        <div class="card-header">
+          <span class="card-number">01</span>
+          <span class="tracker-badge badge-running" id="badge-website">Running</span>
+        </div>
+        <h2 class="card-title">Research &amp; Build</h2>
+        <div class="activity-log" id="log-website"></div>
+      </div>
+
+      <!-- Mission 2: Email Triage -->
+      <div class="card card-blue tracker-card" id="tracker-email">
+        <div class="card-header">
+          <span class="card-number">02</span>
+          <span class="tracker-badge badge-running" id="badge-email">Running</span>
+        </div>
+        <h2 class="card-title">Email Triage</h2>
+        <div class="activity-log" id="log-email"></div>
+      </div>
+
+      <!-- Mission 3: Organize Documents -->
+      <div class="card card-amber tracker-card" id="tracker-documents">
+        <div class="card-header">
+          <span class="card-number">03</span>
+          <span class="tracker-badge badge-running" id="badge-documents">Running</span>
+        </div>
+        <h2 class="card-title">Organize Documents</h2>
+        <div class="activity-log" id="log-documents"></div>
+      </div>
+
+    </section>
+
+    </div><!-- /.running-layout -->
+
+    <!-- Timeline -->
+    <section class="timeline-section">
+      <h3 class="section-title">Timeline</h3>
+      <div class="timeline" id="timeline"></div>
+    </section>
+
+  </main>
+
+  <!-- Complete State -->
+  <main id="state-complete" class="state">
+
+    <!-- Complete Header -->
+    <div class="complete-header">
+      <h2 class="complete-title">The Future Just Happened</h2>
+      <p class="complete-subtitle">Three AI agents completed three missions on your real data.</p>
+    </div>
+
+    <!-- Result Cards -->
+    <section class="cards result-cards">
+
+      <!-- Result 1: Research & Build -->
+      <div class="card card-green result-card" id="result-website">
+        <div class="card-header">
+          <span class="card-number">01</span>
+          <span class="result-badge">Complete</span>
+        </div>
+        <h2 class="card-title">Research &amp; Build</h2>
+        <p class="result-summary" id="result-website-summary">Website generated successfully.</p>
+        <div class="result-preview">
+          <iframe id="result-iframe" class="result-iframe" src="about:blank" sandbox="allow-scripts allow-same-origin"></iframe>
+        </div>
+        <a id="result-open-browser" class="btn-result" href="http://localhost:3000" target="_blank" rel="noopener">Open in Browser &#8599;</a>
+      </div>
+
+      <!-- Result 2: Email Triage -->
+      <div class="card card-blue result-card" id="result-email">
+        <div class="card-header">
+          <span class="card-number">02</span>
+          <span class="result-badge">Complete</span>
+        </div>
+        <h2 class="card-title">Email Triage</h2>
+        <p class="result-summary" id="result-email-summary">Email triage complete.</p>
+        <div class="result-stats" id="result-email-stats"></div>
+        <div class="result-urgent" id="result-email-urgent"></div>
+      </div>
+
+      <!-- Result 3: Organize Documents -->
+      <div class="card card-amber result-card" id="result-documents">
+        <div class="card-header">
+          <span class="card-number">03</span>
+          <span class="result-badge">Complete</span>
+        </div>
+        <h2 class="card-title">Organize Documents</h2>
+        <p class="result-summary" id="result-documents-summary">Documents organized.</p>
+        <div class="result-stats" id="result-documents-stats"></div>
+        <button id="undo-btn" class="btn-undo">Undo All Changes</button>
+        <p class="undo-status" id="undo-status"></p>
+      </div>
+
+    </section>
+
+    <!-- Timeline (reuses running state timeline data) -->
+    <section class="timeline-section">
+      <h3 class="section-title">Event History</h3>
+      <div class="timeline" id="complete-timeline"></div>
+    </section>
+
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
