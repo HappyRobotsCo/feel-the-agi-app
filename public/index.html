@@ -20,6 +20,50 @@
   <!-- Setup State -->
   <main id="state-setup" class="state active">
 
+    <!-- Before You Begin -->
+    <section class="prereqs">
+      <h2 class="prereqs-title">Before You Begin</h2>
+      <p class="prereqs-subtitle">Two things to set up first. Takes about 5 minutes.</p>
+
+      <div class="prereqs-grid">
+
+        <!-- Prereq 1: Claude Plan -->
+        <div class="prereq-item">
+          <div class="prereq-header">
+            <span class="prereq-number">1</span>
+            <h3 class="prereq-name">Get a Claude plan that includes Claude Code</h3>
+          </div>
+          <div class="prereq-body">
+            <p>You need a <strong>paid Claude plan</strong> (Pro, Max, Team, or Enterprise). The free plan does not include Claude Code.</p>
+            <ol class="prereq-steps">
+              <li>Go to <a href="https://claude.ai" target="_blank" rel="noopener">claude.ai</a> and sign in (or create an account)</li>
+              <li>Click your name in the bottom-left corner, then <strong>Settings &rarr; Billing</strong></li>
+              <li>Choose a plan &mdash; <strong>Pro ($20/mo)</strong> is all you need</li>
+            </ol>
+            <p class="prereq-hint">Already have a paid plan? You're good &mdash; skip to step 2.</p>
+          </div>
+        </div>
+
+        <!-- Prereq 2: Connect Gmail -->
+        <div class="prereq-item">
+          <div class="prereq-header">
+            <span class="prereq-number">2</span>
+            <h3 class="prereq-name">Connect your Gmail to Claude</h3>
+          </div>
+          <div class="prereq-body">
+            <p>The Email Triage agent needs access to your inbox. You'll connect Gmail through Claude's built-in connectors.</p>
+            <ol class="prereq-steps">
+              <li>Go to <a href="https://claude.ai/settings/connectors" target="_blank" rel="noopener">claude.ai/settings/connectors</a></li>
+              <li>Find <strong>Gmail</strong> in the list and click <strong>Connect</strong></li>
+              <li>Sign in with your Google account and click <strong>Authorize</strong></li>
+            </ol>
+            <p class="prereq-hint">Gmail will appear as "Connected" when it's ready. Claude can only read your emails &mdash; it cannot send, delete, or modify anything.</p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
     <!-- Mission Cards -->
     <section class="cards">
 
@@ -59,7 +103,7 @@
         <h2 class="card-title">Email Triage</h2>
         <p class="card-description">An AI agent reads your recent emails, categorizes them by urgency, and drafts replies for you.</p>
         <div class="card-body">
-          <p class="connect-info">Gmail is connected via Claude Code's built-in integration. If not connected, visit <strong>claude.ai/settings/connectors</strong>.</p>
+          <p class="connect-info">Uses the Gmail connection from Step 2 above. No additional setup needed.</p>
         </div>
       </div>
 
