@@ -86,32 +86,10 @@ else
   print_ok "Claude Code installed"
 fi
 
-# --- Step 5/8: Claude authentication ---
-print_step "[5/8] Authenticating Claude Code"
-
-# Check auth via "auth status" — lightweight JSON check, no session launch,
-# no directory scanning, no macOS TCC popups.
-# Redirect stdin from /dev/null so claude doesn't consume the piped script
-# (this script is run via `curl | bash`, so stdin IS the script itself).
-if claude --version < /dev/null > /dev/null 2>&1 && claude auth status < /dev/null 2>/dev/null | grep -q '"loggedIn": true'; then
-  print_skip "Claude Code (already authenticated)"
-else
-  echo "  Starting Claude Code authentication..."
-  echo "  A browser window will open. Please sign in to your Anthropic account."
-  echo ""
-  if claude auth login < /dev/tty 2>/dev/null || claude auth login; then
-    print_ok "Claude Code authenticated"
-  else
-    print_error "Authentication failed or was cancelled."
-    echo "  Please run this script again after authenticating."
-    exit 1
-  fi
-fi
-
-# Pre-seed Claude Code config to skip first-run onboarding wizard and the
-# --dangerously-skip-permissions confirmation dialog. Without this, each
-# mission window shows an interactive theme picker / tutorial instead of
-# running the actual agent.
+# Pre-seed Claude Code config BEFORE any claude commands run.
+# This skips the workspace trust dialog, onboarding wizard, and the
+# --dangerously-skip-permissions confirmation. Without this, `claude auth login`
+# launches the TUI with a trust prompt that can lock the terminal.
 CLAUDE_VERSION=$(claude --version < /dev/null 2>/dev/null || echo "unknown")
 if [ ! -f "$HOME/.claude.json" ] || ! grep -q '"hasCompletedOnboarding"' "$HOME/.claude.json" 2>/dev/null; then
   cat > "$HOME/.claude.json" << EOF
@@ -140,7 +118,6 @@ if [ ! -f "$HOME/.claude/settings.json" ]; then
 }
 EOF
 elif ! grep -q '"skipDangerousModePermissionPrompt"' "$HOME/.claude/settings.json" 2>/dev/null; then
-  # Settings file exists but missing the key — add it via a temp file
   node -e "
     const fs = require('fs');
     const f = '$HOME/.claude/settings.json';
@@ -148,6 +125,26 @@ elif ! grep -q '"skipDangerousModePermissionPrompt"' "$HOME/.claude/settings.jso
     s.skipDangerousModePermissionPrompt = true;
     fs.writeFileSync(f, JSON.stringify(s, null, 2) + '\n');
   " < /dev/null 2>/dev/null || true
+fi
+
+# --- Step 5/8: Claude authentication ---
+print_step "[5/8] Authenticating Claude Code"
+
+# Check auth via "auth status" — lightweight JSON check, no session launch,
+# no directory scanning, no macOS TCC popups.
+if claude --version < /dev/null > /dev/null 2>&1 && claude auth status < /dev/null 2>/dev/null | grep -q '"loggedIn": true'; then
+  print_skip "Claude Code (already authenticated)"
+else
+  echo "  Starting Claude Code authentication..."
+  echo "  A browser window will open. Please sign in to your Anthropic account."
+  echo ""
+  if claude auth login < /dev/tty 2>/dev/null || claude auth login; then
+    print_ok "Claude Code authenticated"
+  else
+    print_error "Authentication failed or was cancelled."
+    echo "  Please run this script again after authenticating."
+    exit 1
+  fi
 fi
 
 # --- Step 6/8: Gmail authentication ---
