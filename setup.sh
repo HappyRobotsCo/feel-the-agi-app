@@ -42,6 +42,13 @@ else
   print_ok "Project downloaded to $PROJECT_DIR"
 fi
 
+# IMPORTANT: cd into the project directory before running any claude commands.
+# Claude Code scans from CWD on startup looking for .git/CLAUDE.md files.
+# If CWD is $HOME (the default when piped from curl), it walks ~/Desktop,
+# ~/Documents, ~/Photos, ~/Contacts, etc. and triggers a macOS TCC permission
+# popup for EACH protected folder — which scares users into quitting.
+cd "$PROJECT_DIR"
+
 # --- Step 2/8: Homebrew ---
 print_step "[2/8] Checking Homebrew"
 
@@ -82,8 +89,9 @@ fi
 # --- Step 5/8: Claude authentication ---
 print_step "[5/8] Authenticating Claude Code"
 
-# Check if Claude is already authenticated by running a quick test
-if claude --version > /dev/null 2>&1 && claude -p "echo hello" --max-turns 1 > /dev/null 2>&1; then
+# Check auth via "auth status" — lightweight JSON check, no session launch,
+# no directory scanning, no macOS TCC popups
+if claude --version > /dev/null 2>&1 && claude auth status 2>/dev/null | grep -q '"loggedIn": true'; then
   print_skip "Claude Code (already authenticated)"
 else
   echo "  Starting Claude Code authentication..."
@@ -146,7 +154,6 @@ mkdir -p "$PROJECT_DIR"/{status,output}
 print_ok "Directory structure ready"
 
 # Ensure npm dependencies are installed
-cd "$PROJECT_DIR"
 if [ -d "$PROJECT_DIR/node_modules" ] && [ -d "$PROJECT_DIR/node_modules/ws" ] && [ -d "$PROJECT_DIR/node_modules/chokidar" ]; then
   print_skip "npm dependencies"
 else
@@ -172,7 +179,6 @@ if lsof -i ":$SERVER_PORT" > /dev/null 2>&1; then
 fi
 
 # Start server in the background
-cd "$PROJECT_DIR"
 node server.js &
 SERVER_PID=$!
 
