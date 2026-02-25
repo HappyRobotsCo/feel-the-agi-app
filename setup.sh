@@ -119,7 +119,14 @@ if [ ! -f "$HOME/.claude.json" ] || ! grep -q '"hasCompletedOnboarding"' "$HOME/
   "hasCompletedOnboarding": true,
   "theme": "dark",
   "numStartups": 1,
-  "lastOnboardingVersion": "$CLAUDE_VERSION"
+  "lastOnboardingVersion": "$CLAUDE_VERSION",
+  "projects": {
+    "$PROJECT_DIR": {
+      "hasTrustDialogAccepted": true,
+      "hasCompletedProjectOnboarding": true,
+      "projectOnboardingSeenCount": 1
+    }
+  }
 }
 EOF
   print_ok "Claude Code onboarding pre-configured"
