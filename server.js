@@ -141,7 +141,7 @@ function handlePostUndoDocuments(req, res) {
 }
 
 function handlePostCreateSampleDocs(req, res) {
-  const sampleDir = path.join(require('os').homedir(), 'feel-the-agi-test-docs');
+  const sampleDir = path.join(require('os').homedir(), 'Documents');
   const script = path.join(__dirname, 'create-test-folder.sh');
 
   if (!fs.existsSync(script)) {
@@ -156,7 +156,7 @@ function handlePostCreateSampleDocs(req, res) {
       return;
     }
     if (stdout) console.log(`[sample-docs] ${stdout.trimEnd()}`);
-    jsonResponse(res, 200, { status: 'created', path: '~/feel-the-agi-test-docs' });
+    jsonResponse(res, 200, { status: 'created', path: '~/Documents' });
   });
 }
 

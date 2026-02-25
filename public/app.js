@@ -148,7 +148,7 @@
             documentsPathInput.value = result.data.path;
             localStorage.setItem(STORAGE_KEYS.documentsPath, result.data.path);
             sampleBtn.textContent = 'Sample files created';
-            sampleStatus.textContent = '46 sample files created in ~/feel-the-agi-test-docs';
+            sampleStatus.textContent = '46 sample files created in ~/Documents';
             sampleStatus.className = 'sample-status success';
           } else {
             sampleBtn.disabled = false;

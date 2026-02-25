@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-DIR="$HOME/feel-the-agi-test-docs"
+DIR="$HOME/Documents"
 mkdir -p "$DIR"
 
 echo "Creating test files in $DIR ..."
@@ -79,4 +79,4 @@ touch "$DIR/old stuff/random_notes.txt"
 echo ""
 echo "Done! Created $(find "$DIR" -type f | wc -l | tr -d ' ') files in $DIR"
 echo ""
-echo "Use this path in the dashboard: ~/feel-the-agi-test-docs"
+echo "Use this path in the dashboard: ~/Documents"
