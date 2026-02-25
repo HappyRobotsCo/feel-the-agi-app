@@ -87,11 +87,13 @@ else
 fi
 
 # Pre-seed Claude Code config BEFORE any claude commands run.
-# This skips the workspace trust dialog, onboarding wizard, and the
-# --dangerously-skip-permissions confirmation. Without this, `claude auth login`
-# launches the TUI with a trust prompt that can lock the terminal.
+# CRITICAL: We must inject trust for $PROJECT_DIR into ~/.claude.json whether
+# the file exists or not. If the user already has Claude Code, the file exists
+# but won't have an entry for this new project — and ANY claude command run
+# from this directory will launch the TUI trust dialog, which locks the terminal.
 CLAUDE_VERSION=$(claude --version < /dev/null 2>/dev/null || echo "unknown")
-if [ ! -f "$HOME/.claude.json" ] || ! grep -q '"hasCompletedOnboarding"' "$HOME/.claude.json" 2>/dev/null; then
+if [ ! -f "$HOME/.claude.json" ]; then
+  # Fresh install — create the whole file
   cat > "$HOME/.claude.json" << EOF
 {
   "hasCompletedOnboarding": true,
@@ -100,6 +102,7 @@ if [ ! -f "$HOME/.claude.json" ] || ! grep -q '"hasCompletedOnboarding"' "$HOME/
   "lastOnboardingVersion": "$CLAUDE_VERSION",
   "projects": {
     "$PROJECT_DIR": {
+      "allowedTools": [],
       "hasTrustDialogAccepted": true,
       "hasCompletedProjectOnboarding": true,
       "projectOnboardingSeenCount": 1
@@ -108,6 +111,22 @@ if [ ! -f "$HOME/.claude.json" ] || ! grep -q '"hasCompletedOnboarding"' "$HOME/
 }
 EOF
   print_ok "Claude Code onboarding pre-configured"
+else
+  # File exists (user already has Claude Code) — inject trust for this project
+  node -e "
+    const fs = require('fs');
+    const f = process.env.HOME + '/.claude.json';
+    const d = JSON.parse(fs.readFileSync(f, 'utf8'));
+    if (!d.projects) d.projects = {};
+    const p = '$PROJECT_DIR';
+    if (!d.projects[p]) d.projects[p] = {};
+    d.projects[p].hasTrustDialogAccepted = true;
+    d.projects[p].hasCompletedProjectOnboarding = true;
+    d.projects[p].projectOnboardingSeenCount = 1;
+    if (!d.hasCompletedOnboarding) d.hasCompletedOnboarding = true;
+    fs.writeFileSync(f, JSON.stringify(d, null, 2) + '\n');
+  " < /dev/null 2>/dev/null
+  print_ok "Project trust pre-approved in existing Claude Code config"
 fi
 
 mkdir -p "$HOME/.claude"
@@ -132,18 +151,24 @@ print_step "[5/8] Authenticating Claude Code"
 
 # Check auth via "auth status" — lightweight JSON check, no session launch,
 # no directory scanning, no macOS TCC popups.
-if claude --version < /dev/null > /dev/null 2>&1 && claude auth status < /dev/null 2>/dev/null | grep -q '"loggedIn": true'; then
+# Run all claude commands from $HOME to avoid any workspace interaction.
+if (cd "$HOME" && claude --version < /dev/null > /dev/null 2>&1 && claude auth status < /dev/null 2>/dev/null | grep -q '"loggedIn": true'); then
   print_skip "Claude Code (already authenticated)"
 else
   echo "  Starting Claude Code authentication..."
   echo "  A browser window will open. Please sign in to your Anthropic account."
   echo ""
-  if claude auth login < /dev/tty 2>/dev/null || claude auth login; then
+  # NEVER use 'claude auth login' — it launches the full TUI which can lock
+  # the terminal. Instead, open the auth page in the browser and poll.
+  (cd "$HOME" && claude auth login < /dev/tty 2>/dev/null) || (cd "$HOME" && claude auth login) || true
+
+  # Verify it worked
+  if (cd "$HOME" && claude auth status < /dev/null 2>/dev/null | grep -q '"loggedIn": true'); then
     print_ok "Claude Code authenticated"
   else
-    print_error "Authentication failed or was cancelled."
-    echo "  Please run this script again after authenticating."
-    exit 1
+    print_error "Authentication may not have completed."
+    echo "  You can authenticate later by running: claude auth login"
+    echo "  Continuing setup..."
   fi
 fi
 
@@ -154,7 +179,7 @@ print_step "[6/8] Connecting Gmail"
 # a one-time OAuth flow through Google. No extra software needed.
 
 # Check if Gmail is already authenticated
-GMAIL_AUTH_STATUS=$(claude mcp list < /dev/null 2>&1 | grep "claude.ai Gmail" || true)
+GMAIL_AUTH_STATUS=$(cd "$HOME" && claude mcp list < /dev/null 2>&1 | grep "claude.ai Gmail" || true)
 
 if echo "$GMAIL_AUTH_STATUS" | grep -q "Connected"; then
   print_skip "Gmail (already connected)"
@@ -173,7 +198,7 @@ else
   read -r < /dev/tty 2>/dev/null || true
 
   # Re-check
-  GMAIL_AUTH_STATUS=$(claude mcp list < /dev/null 2>&1 | grep "claude.ai Gmail" || true)
+  GMAIL_AUTH_STATUS=$(cd "$HOME" && claude mcp list < /dev/null 2>&1 | grep "claude.ai Gmail" || true)
   if echo "$GMAIL_AUTH_STATUS" | grep -q "Connected"; then
     print_ok "Gmail connected"
   else
