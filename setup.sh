@@ -99,7 +99,7 @@ else
   echo "  Starting Claude Code authentication..."
   echo "  A browser window will open. Please sign in to your Anthropic account."
   echo ""
-  if claude auth login < /dev/tty; then
+  if claude auth login < /dev/tty 2>/dev/null || claude auth login; then
     print_ok "Claude Code authenticated"
   else
     print_error "Authentication failed or was cancelled."
@@ -131,7 +131,7 @@ else
   echo "       → Type /mcp → Select 'Authenticate' for Gmail"
   echo ""
   echo "  After connecting, press Enter to continue..."
-  read -r < /dev/tty
+  read -r < /dev/tty 2>/dev/null || true
 
   # Re-check
   GMAIL_AUTH_STATUS=$(claude mcp list < /dev/null 2>&1 | grep "claude.ai Gmail" || true)
