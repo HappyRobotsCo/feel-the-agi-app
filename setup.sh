@@ -71,7 +71,7 @@ if command -v node > /dev/null 2>&1; then
   print_skip "Node.js ($(node --version))"
 else
   echo "  Installing Node.js via Homebrew..."
-  brew install node > /dev/null 2>&1
+  brew install node < /dev/null > /dev/null 2>&1
   print_ok "Node.js installed ($(node --version))"
 fi
 
@@ -82,7 +82,7 @@ if command -v claude > /dev/null 2>&1; then
   print_skip "Claude Code"
 else
   echo "  Installing Claude Code..."
-  npm install -g @anthropic-ai/claude-code > /dev/null 2>&1
+  npm install -g @anthropic-ai/claude-code < /dev/null > /dev/null 2>&1
   print_ok "Claude Code installed"
 fi
 
@@ -90,14 +90,16 @@ fi
 print_step "[5/8] Authenticating Claude Code"
 
 # Check auth via "auth status" — lightweight JSON check, no session launch,
-# no directory scanning, no macOS TCC popups
-if claude --version > /dev/null 2>&1 && claude auth status 2>/dev/null | grep -q '"loggedIn": true'; then
+# no directory scanning, no macOS TCC popups.
+# Redirect stdin from /dev/null so claude doesn't consume the piped script
+# (this script is run via `curl | bash`, so stdin IS the script itself).
+if claude --version < /dev/null > /dev/null 2>&1 && claude auth status < /dev/null 2>/dev/null | grep -q '"loggedIn": true'; then
   print_skip "Claude Code (already authenticated)"
 else
   echo "  Starting Claude Code authentication..."
   echo "  A browser window will open. Please sign in to your Anthropic account."
   echo ""
-  if claude auth login; then
+  if claude auth login < /dev/tty; then
     print_ok "Claude Code authenticated"
   else
     print_error "Authentication failed or was cancelled."
@@ -113,7 +115,7 @@ print_step "[6/8] Connecting Gmail"
 # a one-time OAuth flow through Google. No extra software needed.
 
 # Check if Gmail is already authenticated
-GMAIL_AUTH_STATUS=$(claude mcp list 2>&1 | grep "claude.ai Gmail" || true)
+GMAIL_AUTH_STATUS=$(claude mcp list < /dev/null 2>&1 | grep "claude.ai Gmail" || true)
 
 if echo "$GMAIL_AUTH_STATUS" | grep -q "Connected"; then
   print_skip "Gmail (already connected)"
@@ -129,10 +131,10 @@ else
   echo "       → Type /mcp → Select 'Authenticate' for Gmail"
   echo ""
   echo "  After connecting, press Enter to continue..."
-  read -r
+  read -r < /dev/tty
 
   # Re-check
-  GMAIL_AUTH_STATUS=$(claude mcp list 2>&1 | grep "claude.ai Gmail" || true)
+  GMAIL_AUTH_STATUS=$(claude mcp list < /dev/null 2>&1 | grep "claude.ai Gmail" || true)
   if echo "$GMAIL_AUTH_STATUS" | grep -q "Connected"; then
     print_ok "Gmail connected"
   else
@@ -158,7 +160,7 @@ if [ -d "$PROJECT_DIR/node_modules" ] && [ -d "$PROJECT_DIR/node_modules/ws" ] &
   print_skip "npm dependencies"
 else
   echo "  Installing npm dependencies..."
-  npm install > /dev/null 2>&1
+  npm install < /dev/null > /dev/null 2>&1
   print_ok "npm dependencies installed"
 fi
 
